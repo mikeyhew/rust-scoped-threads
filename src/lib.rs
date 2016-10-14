@@ -11,8 +11,8 @@ pub struct Scope<'a> {
 
 impl<'a> Scope<'a> {
     pub fn spawn<F>(&mut self, f: F) where F: FnOnce() + Send + 'a {
-        let closure: Box<FnBox + 'a> = Box::new(f);
-        let closure: Box<FnBox + Send> = unsafe{
+        let closure: Box<FnBox + Send + 'a> = Box::new(f);
+        let closure: Box<FnBox + Send + 'static> = unsafe{
             std::mem::transmute(closure)
         };
         let join_handle = thread::spawn(move || closure.call_box());
