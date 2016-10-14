@@ -43,20 +43,36 @@ impl<F: FnOnce()> FnBox for F {
 #[cfg(test)]
 mod tests {
     use super::*;
-        #[test]
-        fn it_works() {
-            let one = scope(|_|{1});
-            assert!(one == 1);
-        }
+    #[test]
+    fn it_works() {
+        let one = scope(|_|{1});
+        assert!(one == 1);
+    }
 
-        #[test]
-        fn one_thread() {
-            let mut foo = 0;
-            scope(|mut scope| {
-                scope.spawn(|| {
-                    foo = 1;
-                });
+    #[test]
+    fn one_thread() {
+        let mut foo = 0;
+        scope(|mut scope| {
+            scope.spawn(|| {
+                foo = 1;
             });
-            assert!(foo == 1);
-        }
+        });
+        assert!(foo == 1);
+    }
+
+    #[test]
+    fn two_threads() {
+        let mut foo = 0;
+        let mut bar = 1;
+        scope(|mut scope| {
+            scope.spawn(|| {
+                foo = 5;
+            });
+            scope.spawn(|| {
+                bar = 7;
+            })
+        });
+        assert!(foo == 5);
+        assert!(bar == 7);
+    }
 }
