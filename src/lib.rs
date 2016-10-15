@@ -11,11 +11,11 @@ pub struct Scope<'a> {
 
 impl<'a> Scope<'a> {
     pub fn spawn<F>(&mut self, f: F) where F: FnOnce() + Send + 'a {
-        let closure: Box<FnBox + Send + 'a> = Box::new(f);
-        let closure: Box<FnBox + Send + 'static> = unsafe{
-            std::mem::transmute(closure)
+        let f: Box<FnBox + Send + 'a> = Box::new(f);
+        let f: Box<FnBox + Send + 'static> = unsafe{
+            std::mem::transmute(f)
         };
-        let join_handle = thread::spawn(move || closure.call_box());
+        let join_handle = thread::spawn(move || f.call_box());
         self.join_handles.push_back(join_handle);
     }
 }
